@@ -1,33 +1,34 @@
 if [[ ! -e "$WEB_DOCUMENT_ROOT" ]]; then
-    echo ""
-    echo "[WARNING] WEB_DOCUMENT_ROOT does not exists with path \"$WEB_DOCUMENT_ROOT\"!"
-    echo ""
+	echo ""
+	echo "[WARNING] WEB_DOCUMENT_ROOT does not exists with path \"$WEB_DOCUMENT_ROOT\"!"
+	echo ""
 fi
 
-function replaceNginxConfs()
-{
-	find /opt/docker/etc/nginx/ -iname '*.conf' -print0 | xargs -0 -r docker-replace --quiet "${1}" "${2}"
-}
+###
+ # Common Functions
+ ##
+source "$DOCKER_CONF_PATH/bin/functions.sh"
 
-if [ ! -d "/opt/docker/.cache/nginx" ];then
-	mkdir -p /opt/docker/.cache/nginx
+if [ ! -d "$DOCKER_CONF_PATH/.cache/nginx" ];then
+	mkdir -p $DOCKER_CONF_PATH/.cache/nginx
 	# Backup
-	cp /opt/docker/etc/nginx/*.conf /opt/docker/.cache/nginx
+	cp $DOCKER_CONF_PATH/etc/nginx/*.conf $DOCKER_CONF_PATH/.cache/nginx
 else
-	cp -f /opt/docker/.cache/nginx/*.conf /opt/docker/etc/nginx/
+	cp -f $DOCKER_CONF_PATH/.cache/nginx/*.conf $DOCKER_CONF_PATH/etc/nginx/
 fi
 
 # Replace markers
-replaceNginxConfs "<DOCUMENT_INDEX>" "$WEB_DOCUMENT_INDEX"
-replaceNginxConfs "<DOCUMENT_ROOT>"  "$WEB_DOCUMENT_ROOT"
-replaceNginxConfs "<ALIAS_DOMAIN>"   "$WEB_ALIAS_DOMAIN"
-replaceNginxConfs "<SERVERNAME>"     "$HOSTNAME"
+replaceFile "<DOCUMENT_INDEX>"		"$WEB_DOCUMENT_INDEX" 	"$DOCKER_CONF_PATH/etc/nginx"
+replaceFile "<DOCUMENT_ROOT>"		"$WEB_DOCUMENT_ROOT" 	"$DOCKER_CONF_PATH/etc/nginx"
+replaceFile "<ALIAS_DOMAIN>"		"$WEB_ALIAS_DOMAIN" 	"$DOCKER_CONF_PATH/etc/nginx"
+replaceFile "<SERVERNAME>"			"$HOSTNAME" 			"$DOCKER_CONF_PATH/etc/nginx"
+replaceFile "<DOCKER_CONF_PATH>"	"$DOCKER_CONF_PATH" 	"$DOCKER_CONF_PATH/etc/nginx"
 
 if [[ -n "${WEB_PHP_SOCKET+x}" ]]; then
-    ## WEB_PHP_SOCKET is set
-    replaceNginxConfs "<PHP_SOCKET>" "$WEB_PHP_SOCKET"
+	## WEB_PHP_SOCKET is set
+	replaceFile "<PHP_SOCKET>" "$WEB_PHP_SOCKET" 		"$DOCKER_CONF_PATH/etc/nginx"
 else
-    ## WEB_PHP_SOCKET is not set, remove PHP files
-    rm /opt/docker/etc/nginx/conf.d/10-php.conf
-    rm /opt/docker/etc/nginx/vhost.common.d/10-php.conf
+	## WEB_PHP_SOCKET is not set, remove PHP files
+	rm $DOCKER_CONF_PATH/etc/nginx/conf.d/10-php.conf
+	rm $DOCKER_CONF_PATH/etc/nginx/vhost.common.d/10-php.conf
 fi

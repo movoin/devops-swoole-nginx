@@ -14,13 +14,26 @@ echo ""
 echo "Building image: '${REPO_NAME}:${TAG_NAME}'"
 echo ""
 
+
+######
+
+
+echo "> Clean up"
+
+echo ""
+
+find ./ -type f | grep .DS_Store | awk '{system("rm -rf "$1)}'
+
+echo ""
+
+
 ######
 
 echo "> Running docker"
 
 echo ""
 
-docker build -t "${REPO_NAME}:${TAG_NAME}" ${DOCKERFILE_PATH}/${TAG_NAME}
+docker build --no-cache --force-rm -t "${REPO_NAME}:${TAG_NAME}" ${DOCKERFILE_PATH}/${TAG_NAME}
 
 echo ""
 

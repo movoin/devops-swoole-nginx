@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 
-source /opt/docker/bin/functions.sh
+###
+ # Common Functions
+ ##
+source "$DOCKER_CONF_PATH/bin/provision.sh"
 
-includeScriptDir "/opt/docker/bin/service.d/nginx.d"
+runInit "nginx.d"
 
 exec /usr/sbin/nginx
