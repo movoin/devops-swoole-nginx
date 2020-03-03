@@ -14,7 +14,7 @@ COPY conf/              $DOCKER_CONF_PATH
 
 RUN set -x \
     && /usr/local/bin/docker-install \
-        nginx \
+    nginx \
     # Bootstrap
     && $DOCKER_CONF_PATH/bin/bootstrap.sh
 
